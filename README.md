@@ -2,7 +2,7 @@
  
  WIP!
 
-This repository contains examples of usage of various (msh libraries)[https://github.com/mhalber/msh]
+This repository contains examples of usage of various [msh libraries](https://github.com/mhalber/msh)
 
 ## msh_ply_example.c
 Simple program showcasing msh_ply.h for writning ply file of a colored cube mesh. Program will also
