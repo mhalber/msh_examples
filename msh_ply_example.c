@@ -7,6 +7,7 @@ int main( int argc, char** argv )
 {
   if( argc < 2 ) { return 0; }
 
+  int n_verts = 8;
   float verts[8*3] = { -1.0f, -1.0f, -1.0f, /* 0 */
                         1.0f, -1.0f, -1.0f, /* 1 */
                        -1.0f,  1.0f, -1.0f, /* 2 */
@@ -22,7 +23,7 @@ int main( int argc, char** argv )
                                          .num_properties = 3,
                                          .data_type = MSH_PLY_FLOAT,
                                          .data = verts,
-                                         .data_count = 8 };
+                                         .data_count = &n_verts };
   uint8_t colors[8*3] = { 0,  0,  0, 
                           0, 255, 0,
                           0, 0, 255,
@@ -37,7 +38,8 @@ int main( int argc, char** argv )
                                          .num_properties = 3,
                                          .data_type = MSH_PLY_UINT8,
                                          .data = colors,
-                                         .data_count = 8 };
+                                         .data_count = &n_verts };
+  int32_t n_faces = 12;
   int32_t faces[12*3] = { 0, 2, 1, 1, 2, 3,
                           0, 1, 4, 1, 5, 4,
                           0, 4, 2, 2, 4, 6,
@@ -51,7 +53,7 @@ int main( int argc, char** argv )
                                          .data_type = MSH_PLY_INT32,
                                          .list_type = MSH_PLY_UINT8,
                                          .data = faces,
-                                         .data_count = 12,
+                                         .data_count = &n_faces,
                                          .list_size_hint = 3 };
 
 
