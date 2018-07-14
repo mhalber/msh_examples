@@ -1,8 +1,7 @@
-#define MSH_STD_IMPLEMENTATION
 #define MSH_PLY_IMPLEMENTATION
-
-#include <msh/msh_std.h>
+#define MSH_PLY_INCLUDE_HEADERS
 #include <msh/experimental/msh_ply.h>
+
 
 int main( int argc, char** argv )
 {
@@ -59,7 +58,7 @@ int main( int argc, char** argv )
   msh_ply_property_desc_t descriptors[3] = { verts_desc, colors_desc, faces_desc };
 
   msh_ply_t* out_ply = msh_ply_open( argv[1], "wb" );
-  for( int i = 0 ; i < msh_count_of( descriptors ); ++i )
+  for( int i = 0; i < 3; ++i )
   {
     msh_ply_add_descriptor( out_ply, &descriptors[i] );
   }
@@ -67,7 +66,7 @@ int main( int argc, char** argv )
   msh_ply_close( out_ply ); 
 
   msh_ply_t* in_ply = msh_ply_open( argv[1], "rb" );
-  for( int i = 0 ; i < msh_count_of( descriptors ); ++i )
+  for( int i = 0 ; i < 3; ++i )
   {
     msh_ply_add_descriptor( in_ply, &descriptors[i] );
   }
