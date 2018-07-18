@@ -7,7 +7,7 @@
 
 #define MSH_PLY_IMPLEMENTATION
 #define MSH_PLY_INCLUDE_HEADERS
-#include <msh/experimental/msh_ply.h>
+#include <msh/msh_ply.h>
 
 typedef struct Vec3f
 {
