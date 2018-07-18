@@ -108,11 +108,12 @@ read_example( const char* filename, TriMesh *mesh )
                                          .list_size_hint = 3 };
 
   // Create ply file, add descriptors and read
-  msh_ply_t* out_ply = msh_ply_open( filename, "rb" );
-  msh_ply_add_descriptor( out_ply, &verts_desc );
-  msh_ply_add_descriptor( out_ply, &faces_desc );
-  msh_ply_read( out_ply );
-  msh_ply_close( out_ply ); 
+  msh_ply_t* in_ply = msh_ply_open( filename, "rb" );
+  msh_ply_add_descriptor( in_ply, &verts_desc );
+  msh_ply_add_descriptor( in_ply, &faces_desc );
+  msh_ply_read( in_ply );
+  msh_ply_print_header( in_ply );
+  msh_ply_close( in_ply ); 
 }
 
 int main( int argc, char** argv )
