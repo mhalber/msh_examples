@@ -1,4 +1,4 @@
-# MSH Examples
+# msh examples
  
  WIP!
 
