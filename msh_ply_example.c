@@ -178,6 +178,5 @@ int main( int argc, char** argv )
   TriMeshSimple cube_2;
   error_report_example(argv[1], &cube_2 );
 
-
   return 1;
 }
