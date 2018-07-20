@@ -41,8 +41,8 @@ void create_cube_simple( TriMeshSimple* mesh )
 {
   mesh->n_vertices = 8;
   mesh->n_faces    = 12;
-  mesh->vertices   = malloc( mesh->n_vertices * sizeof(Vec3f) );
-  mesh->faces      = malloc( mesh->n_faces * sizeof(Vec3i) );
+  mesh->vertices   = (Vec3f*)malloc( mesh->n_vertices * sizeof(Vec3f) );
+  mesh->faces      = (Vec3i*)malloc( mesh->n_faces * sizeof(Vec3i) );
 
   mesh->vertices[0] = (Vec3f){ -1.0f, -1.0f, -1.0f };
   mesh->vertices[1] = (Vec3f){  1.0f, -1.0f, -1.0f };
@@ -66,7 +66,6 @@ void create_cube_simple( TriMeshSimple* mesh )
   mesh->faces[10] = (Vec3i){ 4, 5, 6 };
   mesh->faces[11] = (Vec3i){ 5, 7, 6 };
 }
-
 
 void
 write_example_simple( const char* filename, TriMeshSimple* mesh )
@@ -141,7 +140,7 @@ error_report_example( const char* filename, TriMeshSimple *mesh )
   err = msh_ply_add_descriptor( fply, &vertex_desc );
   if( err ) 
   { 
-    printf( msh_ply_get_error_string( err) ); 
+    printf( "%s\n", msh_ply_get_error_string( err) ); 
     msh_ply_close( fply ); 
     return 1; 
   }
@@ -149,7 +148,7 @@ error_report_example( const char* filename, TriMeshSimple *mesh )
   err = msh_ply_read( fply ); 
   if( err ) 
   {
-    printf( msh_ply_get_error_string( err ) ); 
+    printf( "%s\n", msh_ply_get_error_string( err ) ); 
     msh_ply_close( fply ); 
     return 1;
   }
@@ -180,5 +179,5 @@ int main( int argc, char** argv )
   error_report_example(argv[1], &cube_2 );
 
 
-  return 0;
+  return 1;
 }
