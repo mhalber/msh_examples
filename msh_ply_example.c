@@ -19,15 +19,25 @@ typedef struct Vec3i
   int x,y,z;
 } Vec3i;
 
-typedef struct TriMesh
+typedef struct TriMeshSimple
 {
   Vec3f* vertices;
   Vec3i* faces;
   int n_vertices;
   int n_faces;
+} TriMeshSimple;
+
+typedef struct TriMesh
+{
+  Vec3f* positions;
+  Vec3f* normals;
+  Vec3f* colors;
+  Vec3i* faces;
+  int n_vertices;
+  int n_faces;
 } TriMesh;
 
-void create_cube( TriMesh* mesh )
+void create_cube_simple( TriMeshSimple* mesh )
 {
   mesh->n_vertices = 8;
   mesh->n_faces    = 12;
@@ -59,25 +69,25 @@ void create_cube( TriMesh* mesh )
 
 
 void
-write_example( const char* filename, TriMesh* mesh )
+write_example_simple( const char* filename, TriMeshSimple* mesh )
 {
 
-  // Describe the data and assign pointers
-  msh_ply_property_desc_t verts_desc = { .element_name = "vertex",
-                                         .property_names = (const char*[]){"x", "y", "z"},
-                                         .num_properties = 3,
-                                         .data_type = MSH_PLY_FLOAT,
-                                         .data = &mesh->vertices,
-                                         .data_count = &mesh->n_vertices };
+  // Describe_simple the data and assign pointers
+  msh_ply_desc_t verts_desc = { .element_name = "vertex",
+                                .property_names = (const char*[]){"x", "y", "z"},
+                                .num_properties = 3,
+                                .data_type = MSH_PLY_FLOAT,
+                                .data = &mesh->vertices,
+                                .data_count = &mesh->n_vertices };
 
-  msh_ply_property_desc_t faces_desc = { .element_name = "face",
-                                         .property_names = (const char*[]){"vertex_indices"},
-                                         .num_properties = 1,
-                                         .data_type = MSH_PLY_INT32,
-                                         .list_type = MSH_PLY_UINT8,
-                                         .data = &mesh->faces,
-                                         .data_count = &mesh->n_faces,
-                                         .list_size_hint = 3 };
+  msh_ply_desc_t faces_desc = { .element_name = "face",
+                                .property_names = (const char*[]){"vertex_indices"},
+                                .num_properties = 1,
+                                .data_type = MSH_PLY_INT32,
+                                .list_type = MSH_PLY_UINT8,
+                                .data = &mesh->faces,
+                                .data_count = &mesh->n_faces,
+                                .list_size_hint = 3 };
 
   // Create ply file, add descriptors and write
   msh_ply_t* out_ply = msh_ply_open( filename, "wb" );
@@ -88,24 +98,24 @@ write_example( const char* filename, TriMesh* mesh )
 }
 
 void
-read_example( const char* filename, TriMesh *mesh )
+read_example_simple( const char* filename, TriMeshSimple *mesh )
 {
   // Describe the data and assign pointers
-  msh_ply_property_desc_t verts_desc = { .element_name = "vertex",
-                                         .property_names = (const char*[]){"x", "y", "z"},
-                                         .num_properties = 3,
-                                         .data_type = MSH_PLY_FLOAT,
-                                         .data = &mesh->vertices,
-                                         .data_count = &mesh->n_vertices };
+  msh_ply_desc_t verts_desc = { .element_name = "vertex",
+                                .property_names = (const char*[]){"x", "y", "z"},
+                                .num_properties = 3,
+                                .data_type = MSH_PLY_FLOAT,
+                                .data = &mesh->vertices,
+                                .data_count = &mesh->n_vertices };
 
-  msh_ply_property_desc_t faces_desc = { .element_name = "face",
-                                         .property_names = (const char*[]){"vertex_indices"},
-                                         .num_properties = 1,
-                                         .data_type = MSH_PLY_INT32,
-                                         .list_type = MSH_PLY_UINT8,
-                                         .data = &mesh->faces,
-                                         .data_count = &mesh->n_faces,
-                                         .list_size_hint = 3 };
+  msh_ply_desc_t faces_desc = { .element_name = "face",
+                                .property_names = (const char*[]){"vertex_indices"},
+                                .num_properties = 1,
+                                .data_type = MSH_PLY_INT32,
+                                .list_type = MSH_PLY_UINT8,
+                                .data = &mesh->faces,
+                                .data_count = &mesh->n_faces,
+                                .list_size_hint = 3 };
 
   // Create ply file, add descriptors and read
   msh_ply_t* in_ply = msh_ply_open( filename, "rb" );
@@ -116,18 +126,59 @@ read_example( const char* filename, TriMesh *mesh )
   msh_ply_close( in_ply ); 
 }
 
+int 
+error_report_example( const char* filename, TriMeshSimple *mesh )
+{
+  msh_ply_t* fply = msh_ply_open( filename, "rb" );
+  msh_ply_desc_t vertex_desc = { .element_name = "vertex",
+                                 .property_names = (const char*[]){"x", "y", "z"},
+                                 .num_properties = 3,
+                                 .data = &mesh->vertices,
+                                 /*.data_count = &mesh->n_vertices,  <== Missing data count */ 
+                                 .data_type = MSH_PLY_FLOAT };
+  
+  int err = MSH_PLY_NO_ERRORS;
+  err = msh_ply_add_descriptor( fply, &vertex_desc );
+  if( err ) 
+  { 
+    printf( msh_ply_get_error_string( err) ); 
+    msh_ply_close( fply ); 
+    return 1; 
+  }
+  
+  err = msh_ply_read( fply ); 
+  if( err ) 
+  {
+    printf( msh_ply_get_error_string( err ) ); 
+    msh_ply_close( fply ); 
+    return 1;
+  }
+
+  msh_ply_close( fply );
+  
+  return 0;
+
+}
+
 int main( int argc, char** argv )
 {
   if( argc < 2 ) { printf("Please provide path to the ply file!\n"); return 0; }
 
-  TriMesh cube1;
-  create_cube( &cube1 );
-  write_example( argv[1], &cube1 );
+  // Simple example for reading and writing
+  TriMeshSimple cube_0;
+  create_cube_simple( &cube_0 );
+  write_example_simple( argv[1], &cube_0 );
 
-  TriMesh cube2;
-  read_example( argv[1], &cube2 );
+  TriMeshSimple cube_1;
+  read_example_simple( argv[1], &cube_1 );
 
   printf( "Wrote and read back cube stored in file %s.\n"
-          "N.Verts: %d; N. Faces: %d\n", argv[1], cube2.n_vertices, cube2.n_faces );
-  return 1;
+          "N.Verts: %d; N. Faces: %d\n", argv[1], cube_1.n_vertices, cube_1.n_faces );
+
+  // Error example
+  TriMeshSimple cube_2;
+  error_report_example(argv[1], &cube_2 );
+
+
+  return 0;
 }
