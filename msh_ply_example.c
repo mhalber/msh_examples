@@ -174,9 +174,9 @@ int main( int argc, char** argv )
   printf( "Wrote and read back cube stored in file %s.\n"
           "N.Verts: %d; N. Faces: %d\n", argv[1], cube_1.n_vertices, cube_1.n_faces );
 
-  // Error example
-  TriMeshSimple cube_2;
-  error_report_example(argv[1], &cube_2 );
+  // // Error example
+  // TriMeshSimple cube_2;
+  // error_report_example(argv[1], &cube_2 );
 
   return 1;
 }

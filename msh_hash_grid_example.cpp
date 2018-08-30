@@ -9,7 +9,7 @@
 
 #include "msh/msh_std.h"
 #include "msh/msh_ply.h"
-#include "msh/experimental/msh_hash_grid.h"
+#include "msh/msh_hash_grid.h"
 
 typedef flann::Index<flann::L2_Simple<float>> flann_index_t;
 

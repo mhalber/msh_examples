@@ -75,8 +75,6 @@ int main()
   printf( "End Count: %lld Capacity: %lld\n", msh_array_count(array), 
                                                 msh_array_capacity(array) );
   msh_array_free(array);
-
-
-
+  
   return 1;
 }
