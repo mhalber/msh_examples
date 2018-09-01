@@ -1,13 +1,18 @@
 /*
- Author: Maciej Halber
- Date : Jul 18, 2018
- License: Public Domain
- To compile: gcc -I<path to folder with msh_libs> msh_ply_example.c -o msh_example
+  Author: Maciej Halber
+  Date : Jul 18, 2018
+  License: CC0
+ 
+  Compilation: gcc -std=c99 -I<path_to_msh_libraries> msh_ply_example.c -o msh_ply_example
+  Usage:       msh_ply_example <path_to_ply_file
+  Description: This is a simple program showcasing basic functionality of msh_ply.h library. It
+               saves a simple cube file to disk, and reads it back. Program also showcases a 
+               function that deliberately misuses the api in order to showcase error reporting.
 */
 
 #define MSH_PLY_IMPLEMENTATION
 #define MSH_PLY_INCLUDE_HEADERS
-#include <msh/msh_ply.h>
+#include "msh_ply.h"
 
 typedef struct Vec3f
 {
@@ -30,8 +35,6 @@ typedef struct TriMeshSimple
 typedef struct TriMesh
 {
   Vec3f* positions;
-  Vec3f* normals;
-  Vec3f* colors;
   Vec3i* faces;
   int n_vertices;
   int n_faces;
@@ -121,7 +124,6 @@ read_example_simple( const char* filename, TriMeshSimple *mesh )
   msh_ply_add_descriptor( in_ply, &verts_desc );
   msh_ply_add_descriptor( in_ply, &faces_desc );
   msh_ply_read( in_ply );
-  msh_ply_print_header( in_ply );
   msh_ply_close( in_ply ); 
 }
 
@@ -163,20 +165,22 @@ int main( int argc, char** argv )
 {
   if( argc < 2 ) { printf("Please provide path to the ply file!\n"); return 0; }
 
-  // Simple example for reading and writing
-  TriMeshSimple cube_0;
+  TriMeshSimple cube_0 = {0};
+  TriMeshSimple cube_1 = {0};
+  TriMeshSimple cube_2 = {0};
   create_cube_simple( &cube_0 );
+
+  // Simple example for reading and writing
   write_example_simple( argv[1], &cube_0 );
+  printf( "Wrote cube data to ply file %s.\n"
+          "N.Verts: %d; N. Faces: %d\n\n", argv[1], cube_0.n_vertices, cube_0.n_faces );
 
-  TriMeshSimple cube_1;
   read_example_simple( argv[1], &cube_1 );
+  printf( "Read back cube stored in file %s.\n"
+          "N.Verts: %d; N. Faces: %d\n\n", argv[1], cube_1.n_vertices, cube_1.n_faces );
 
-  printf( "Wrote and read back cube stored in file %s.\n"
-          "N.Verts: %d; N. Faces: %d\n", argv[1], cube_1.n_vertices, cube_1.n_faces );
-
-  // // Error example
-  // TriMeshSimple cube_2;
-  // error_report_example(argv[1], &cube_2 );
+  // Error example
+  error_report_example( argv[1], &cube_2 );
 
   return 1;
 }

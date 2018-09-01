@@ -1,12 +1,43 @@
-// Additional things to check
-// http://dept.stat.lsa.umich.edu/~jasoneg/Stat406/lab5.pdf
-// https://github.com/DavidPal/discrete-distribution/blob/master/discrete-distribution.cc
-// https://people.sc.fsu.edu/~jburkardt/c_src/walker_sample/walker_sample.html
-// http://www.keithschwarz.com/darts-dice-coins/
+/*
+  Author: Maciej Halber
+  Date : Sep 1, 2018
+  License: CC0
+ 
+  Compilation: gcc -std=c99 -I<path_to_msh_libraries> msh_pdf_sampling_example.c -o msh_pdf_sampling_example
+  Usage:       msh_pdf_sampling_example <path_to_ply_file
+  Description: This is a program showcases different ways it is possible to sample discrete 
+               distributions using msh libraries. The problem we try to tackle is essentially
+               simulating a loaded dice - given set of weights describing likelihood of rolling
+               specific side of a dice we wish to obtain a random index that follows the same
+               distribution as our likelihoods. This extends to an ability to sample from a 
+               discrete probability distribution.
+
+               msh_std.h implements three ways to do this:
+               
+               1) Linear search - requires no setup, other than normalizing the distribution.
+               Generating the random sample from a distribution can take O(n) time. Use only
+               for very small distributions.
+               
+               2) Inverted CDF - Works by computing an approximation of inverted cumulative 
+               distribution function. Setup takes O(m) time, where m is discretization of 
+               probabilites. Sampling takes O(1) time. Issue with this method is the discretization
+               of probabilities to integers. Depending on your distribution m might need to be 
+               very large. To see this method fail, decrease A_INVCDF_N_BINS and inspect the printed
+               values
+
+               3) Alias method - preferable way to do sampling. Requires O(n) setup, generation 
+               takes O(1) time (although we need to compute two random numbers instead of one).
+               Implementation of Vose's algorithm, after description by Keith Schwartz: 
+               http://www.keithschwarz.com/darts-dice-coins/
+
+               This program will perform simulation of loaded dice and sampling from a mixture of 
+               gaussian distribution, using all three methods. Timings will also be performed.
+*/
+
 
 #define MSH_STD_INCLUDE_HEADERS
 #define MSH_STD_IMPLEMENTATION
-#include "msh/msh_std.h"
+#include "msh_std.h"
 
 enum { A_N_ELEMS = 10,   A_N_SAMPLES = 1000000, A_INVCDF_N_BINS = 4096 };
 enum { B_N_ELEMS = 8196, B_N_BINS = 64, B_N_SAMPLES = 100000, B_INVCDF_N_BINS = 8196 };
@@ -31,9 +62,9 @@ void print_histogram( double* hist, int n_bins )
   }
 }
 
-void print_weights( double* arr, int n_elems )
+void print_array_with_title( double* arr, int n_elems, char* title )
 {
-  printf("  Weights: ");
+  printf("  %s ", title );
   for( int i = 0; i < A_N_ELEMS; ++i )
   {
     printf("%8.4f ", arr[i] );
@@ -81,7 +112,7 @@ int main( void )
   te = msh_time_diff( MSHT_MILLISECONDS, t2, t1 );
   printf("Simulating %d fair 6-sided dice rolls: %fms\n", n_rolls, te );
 
-  printf("Roll distribution: ");
+  printf("Fair dice roll distribution: ");
   for( int i = 0; i < 6; ++i )
   {
     printf("%5.3f%% ", dice_rolls[i]/(float)n_rolls * 100.0f );
@@ -89,7 +120,7 @@ int main( void )
   printf("\n\n");
 
 
-  printf("Sampling from a small distribution:\n");
+  printf( "Simulating a loaded %d sided loaded dice with following weights:\n", A_N_ELEMS );
   double weights[ A_N_ELEMS ] = {0};
   double distrib[ A_N_ELEMS ] = {0};
   weights[0] = 0.01;
@@ -103,7 +134,8 @@ int main( void )
   weights[8] = 45.0;
   weights[9] = 1;
   msh_distrib2pdf( weights, distrib, A_N_ELEMS );
-  print_weights( distrib, A_N_ELEMS );
+  print_array_with_title( weights, A_N_ELEMS, "Weights:      " );
+  print_array_with_title( distrib, A_N_ELEMS, "Distribution: " );
   printf("\n");
 
 //----
