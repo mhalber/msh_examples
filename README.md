@@ -1,10 +1,15 @@
 # msh examples
- 
- Work in progress
 
-This repository contains examples of usage of various [msh libraries] (https://github.com/mhalber/msh)
+Work in progress!
 
-(##msh_ply_example.c)
+- [Ply Loading](#ply-loading)
+- [PDF Sampling](#pdf-sampling)
+
+This repository contains examples of usage of various [msh libraries](https://github.com/mhalber/msh)
+
+## Ply Loading
+
+**Library:** msh_std.h
 
 **Compilation:**
 ~~~
@@ -13,12 +18,14 @@ gcc -std=c99 -I<path_to_msh_libraries> msh_pdf_sampling_example.c -o msh_pdf_sam
   
 **Usage:**
 ~~~
-msh_pdf_sampling_example <path_to_ply_file>
+./msh_pdf_sampling_example <path_to_ply_file>
 ~~~
 
 Simple program showcasing msh_ply.h for writing ply file of a colored cube mesh. Program will also read the file back and print the contents of a ply header into stdout.
 
-(##msh_pdf_sampling_example.c)
+## PDF Sampling
+
+**Library:** msh_ply.h
 
 **Compilation:**
 ~~~
@@ -27,10 +34,10 @@ gcc -std=c99 -I<path_to_msh_libraries> msh_ply_example.c -o msh_ply_example
   
 **Usage:**
 ~~~
-msh_pdf_sampling_example
+./msh_pdf_sampling_example
 ~~~
 
-This is a program showcases different ways it is possible to sample discrete distributions using msh libraries. The problem we try to tackle is essentially simulating a loaded dice - given set of weights describing likelihood of rolling specific side of a dice we wish to obtain a random index that follows the same distribution as our likelihoods. This extends to an ability to sample from a discrete probability distribution.
+This program showcases different ways in which it is possible to sample discrete distributions using msh libraries. The problem we try to tackle is essentially simulating a loaded dice - given set of weights describing likelihood of rolling specific side of a dice we wish to obtain a random index that follows the same distribution as our likelihoods. This extends to an ability to sample from a discrete probability distribution.
 
 msh_std.h implements three ways to do this:
 
