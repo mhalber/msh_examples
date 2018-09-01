@@ -5,7 +5,7 @@
  
   Compilation: gcc -std=c99 -I<path_to_msh_libraries> msh_pdf_sampling_example.c -o msh_pdf_sampling_example
   Usage:       msh_pdf_sampling_example <path_to_ply_file
-  Description: This is a program showcases different ways it is possible to sample discrete 
+  Description: This program showcases different ways in which it is possible to sample discrete 
                distributions using msh libraries. The problem we try to tackle is essentially
                simulating a loaded dice - given set of weights describing likelihood of rolling
                specific side of a dice we wish to obtain a random index that follows the same
