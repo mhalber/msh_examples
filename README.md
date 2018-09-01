@@ -1,11 +1,13 @@
 # msh examples
 
-Work in progress!
+**Work in progress!**
+
+This repository contains examples of usage of various [msh libraries](https://github.com/mhalber/msh)
+
+Examples so far:
 
 - [Ply Loading](#ply-loading)
 - [PDF Sampling](#pdf-sampling)
-
-This repository contains examples of usage of various [msh libraries](https://github.com/mhalber/msh)
 
 ## Ply Loading
 
