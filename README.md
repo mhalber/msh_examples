@@ -11,7 +11,7 @@ Examples so far:
 
 ## Ply Loading
 
-**Library:** msh_std.h
+**Library:** msh_ply.h
 
 **Compilation:**
 ~~~
@@ -27,7 +27,7 @@ Simple program showcasing msh_ply.h for writing ply file of a colored cube mesh.
 
 ## PDF Sampling
 
-**Library:** msh_ply.h
+**Library:** msh_std.h
 
 **Compilation:**
 ~~~
