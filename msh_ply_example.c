@@ -4,7 +4,7 @@
   License: CC0
  
   Compilation: gcc -std=c99 -I<path_to_msh_libraries> msh_ply_example.c -o msh_ply_example
-  Usage:       msh_ply_example <path_to_ply_file
+  Usage:       msh_ply_example <path_to_ply_file>
   Description: This is a simple program showcasing basic functionality of msh_ply.h library. It
                saves a simple cube file to disk, and reads it back. Program also showcases a 
                function that deliberately misuses the api in order to showcase error reporting.
