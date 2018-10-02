@@ -56,7 +56,40 @@ draw_points( NVGcontext *vg, const msh_vec2_t* pts, size_t n_pts, float size, st
   }
   nvgStroke( vg );
   nvgFill( vg );
+}
 
+void
+draw_lines( NVGcontext* vg, const msh_vec2_t* lines, size_t n_lines, style_t style )
+{
+  nvgStrokeColor( vg, style.stroke_color );
+  nvgStrokeWidth( vg, style.stroke_size );
+  nvgBeginPath( vg );
+  for( size_t i = 0; i < n_lines ; i++)
+  {
+    msh_vec2_t a = lines[2*i];
+    msh_vec2_t b = lines[2*i+1];
+    nvgMoveTo( vg, a.x, a.y );
+    nvgLineTo( vg, b.x, b.y );
+  }
+  nvgStroke( vg );
+}
+
+void
+draw_lines_alpha( NVGcontext* vg, const msh_vec2_t* lines, const float* alphas, size_t n_lines, style_t style )
+{
+  nvgStrokeWidth( vg, style.stroke_size );
+  for( size_t i = 0; i < n_lines ; i++)
+  {
+    NVGcolor c = style.stroke_color;
+    c.a = alphas[i];
+    nvgBeginPath( vg );
+    nvgStrokeColor( vg, c );
+    msh_vec2_t a = lines[2*i];
+    msh_vec2_t b = lines[2*i+1];
+    nvgMoveTo( vg, a.x, a.y );
+    nvgLineTo( vg, b.x, b.y );
+    nvgStroke( vg );
+  }
 }
 
 int main( int argc, char** argv )
@@ -72,7 +105,8 @@ int main( int argc, char** argv )
 
   // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
   // glfwWindowHint(GLFW_SAMPLES, 4);
-  window = glfwCreateWindow( 512, 512, "Poisson Disk Sampling", NULL, NULL);
+  float window_size = 512;
+  window = glfwCreateWindow( window_size, window_size, "Poisson Disk Sampling", NULL, NULL);
 
   if (!window) {
     glfwTerminate();
@@ -98,18 +132,28 @@ int main( int argc, char** argv )
 
   glfwSwapInterval(0);
 
+  
+  style_t lines_style = { .stroke_size  = 4.0f,
+                             .stroke_color = nvgRGBAf(0.0f, 0.0f, 0.0f, 1.0f) };
   style_t database_style = { .stroke_size  = 1.0f,
-                             .stroke_color = nvgRGBAf(0.6f, 0.6f, 0.6f, 1.0f),
-                             .fill_color   = nvgRGBAf(0.8f, 0.8f, 0.8f, 1.0f) };
+                             .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
+                             .fill_color   = nvgRGBA(78, 121, 161, 255) };
   style_t result_style = { .stroke_size  = 1.0f,
-                           .stroke_color = nvgRGBAf(0.6f, 0.6f, 0.8f, 1.0f),
-                           .fill_color   = nvgRGBAf(0.8f, 0.8f, 1.0f, 1.0f) };
+                           .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
+                           .fill_color   = nvgRGBA(242, 142, 43, 255) };
   style_t query_style = { .stroke_size  = 2.0f,
-                          .stroke_color = nvgRGBAf(0.3f, 0.3f, 0.3f, 1.0f),
-                          .fill_color   = nvgRGBAf(0.5f, 0.5f, 0.5f, 1.0f) };
-  msh_vec2_t origin = msh_vec2(256, 256);
-  int n_pts = 2000;
-  msh_vec2_t* pts = generate_random_points_within_a_circle(origin, 256, n_pts );
+                          .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
+                          .fill_color   = nvgRGBA(225, 87, 89, 255) };
+  style_t domain_style = { .stroke_size  = 6.0f,
+                          .stroke_color  = nvgRGBAf(0.8f, 0.8f, 0.8f, 1.0f),
+                          .fill_color    = nvgRGBAf(1.0f, 1.0f, 1.0f, 0.0f) };
+
+  msh_vec2_t domain_origin = msh_vec2( window_size/2, window_size/2 );
+  float domain_radius = window_size/2 - 20;
+  int n_pts = 1000;
+  msh_vec2_t* pts = generate_random_points_within_a_circle( domain_origin, 
+                                                            domain_radius, 
+                                                            n_pts );
 
   msh_vec3_t* pts_3d = malloc( n_pts * sizeof(msh_vec3_t) );
   for( int i = 0; i < n_pts; ++i )
@@ -118,37 +162,49 @@ int main( int argc, char** argv )
   }
 
   msh_hash_grid_t search_grid = {0};
-  msh_hash_grid_init( &search_grid, (float*)&pts_3d[0], n_pts, 16.0f );
+  float search_radius = 64.0f;
+  msh_hash_grid_init( &search_grid, (float*)&pts_3d[0], n_pts, search_radius );
   int max_n_neigh = 100;
-  msh_hash_grid_search_desc_t search_opts = { .radius = 32.0f,
+  msh_hash_grid_search_desc_t search_opts = { .radius = search_radius,
                                               .max_n_neigh = max_n_neigh,
                                               .n_query_pts = 1,
-                                              .sort = 0,
+                                              .sort = 1,
                                               .distances_sq = malloc( max_n_neigh * sizeof(float) ),
                                               .indices = malloc( max_n_neigh * sizeof(int32_t) ),
                                               .n_neighbors = malloc( max_n_neigh *sizeof(size_t) ) };
   
 
-  float query_theta = 0;
-  float query_r = 128;
-  while (!glfwWindowShouldClose(window))
+  float query_theta = 1.24f;
+  float query_r = window_size/4.0f;
+  while( !glfwWindowShouldClose(window) )
   {
     uint64_t t1 = msh_time_now();
+    uint64_t lt1 = msh_time_now();
     int win_width, win_height;
     int fb_width, fb_height;
     float px_ratio;
 
-    msh_vec2_t query_pt = msh_vec2( origin.x + query_r * cos( query_theta ), 
-                                    origin.y + query_r * sin( query_theta ) );
+    msh_vec2_t query_pt = msh_vec2( domain_origin.x + query_r * cos( query_theta ), 
+                                    domain_origin.y + query_r * sin( query_theta ) );
     search_opts.query_pts = (float*)&(msh_vec3_t){ .x = query_pt.x, .y = query_pt.y, .z = 0.0f };
     int n_results = msh_hash_grid_radius_search_mt( &search_grid, &search_opts );
-    // int n_results = msh_hash_grid_knn_search_mt( &search_grid, &search_opts );
     msh_vec2_t *result_pts = malloc( n_results * sizeof(msh_vec2_t) );
     for( int i = 0; i < n_results; ++i )
     {
       result_pts[i] = pts[ search_opts.indices[i] ];
     }
-
+    msh_vec2_t* connector_lines = malloc( n_results * 2 * sizeof(msh_vec2_t));
+    float* lines_intensity = malloc( n_results *  sizeof(float));
+    for( int i = n_results-1; i >= 0; --i )
+    {
+      connector_lines[2*i] = query_pt;
+      connector_lines[2*i+1] = result_pts[i];
+      lines_intensity[i] = 1.0 - sqrt(search_opts.distances_sq[i]) / search_radius;
+      // printf("%f %f\n", sqrt(search_opts.distances_sq[i]), lines_intensity[i] );
+    }
+    // exit(-1);/
+    uint64_t lt2 = msh_time_now();
+    float logic_time = msh_time_diff(MSHT_MILLISECONDS, lt2, lt1);
     // Calculate pixel ration for hi-dpi devices.
     glfwGetWindowSize(window, &win_width, &win_height);
     glfwGetFramebufferSize(window, &fb_width, &fb_height);
@@ -160,14 +216,22 @@ int main( int argc, char** argv )
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-
+    lt1 = msh_time_now();
     nvgBeginFrame(vg, win_width, win_height, px_ratio);
-
-    draw_points( vg, pts, n_pts, 2.0f, database_style );
-    draw_points( vg, result_pts, n_results, 4.0f, result_style );
-    draw_points( vg, &query_pt, 1, 6.0f, query_style );
+    draw_points( vg, &domain_origin, 1, domain_radius + 0.5*domain_style.stroke_size, domain_style );
+    draw_points( vg, pts, n_pts, 3.0f, database_style );
+    draw_lines_alpha(  vg, connector_lines, lines_intensity, n_results, lines_style );
+    draw_points( vg, result_pts, n_results, 3.0f, result_style );
+    draw_points( vg, &query_pt, 1, 4.5f, query_style );
+    lt2 = msh_time_now();
+    float upload_time = msh_time_diff(MSHT_MILLISECONDS, lt2, lt1);
 
     nvgEndFrame(vg);
+
+    free( result_pts );
+    free( connector_lines );
+    free( lines_intensity );
+
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -175,7 +239,7 @@ int main( int argc, char** argv )
     float elapsed_time = msh_time_diff( MSHT_SECONDS, t2, t1);
     query_theta += elapsed_time;
     char buf[1024];
-    sprintf(buf, "TEST: %fms.", msh_time_diff(MSHT_MILLISECONDS, t2, t1) );
+    sprintf(buf, "TEST: %fms.| %fms. | %fms.", logic_time, upload_time, msh_time_diff(MSHT_MILLISECONDS, t2, t1) );
     glfwSetWindowTitle( window, buf );
   }
 
