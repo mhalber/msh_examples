@@ -1,5 +1,5 @@
 // msh_hash_grid_example.c
-// compile: gcc -I../dev msh_hash_grid_example.c -o ../bin/msh_hash_grid_example.ply -lglfw3 -lopengl32 -lglew32 -lnanovg
+// compile: gcc -I../dev msh_hash_grid_example.c -o ../bin/msh_hash_grid_example.exe -lglfw3 -lopengl32 -lglew32 -lnanovg
 
 #define MSH_STD_INCLUDE_LIBC_HEADERS
 #define MSH_STD_IMPLEMENTATION
@@ -9,7 +9,7 @@
 #define NANOVG_GL3_IMPLEMENTATION
 
 #include <GL/glew.h> // TODO: replace with flextgl or smth
-#include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h> // TODO: replace with sokol_app.h
 
 #include "msh/msh_std.h"
 #include "msh/msh_hash_grid.h"
@@ -133,20 +133,20 @@ int main( int argc, char** argv )
   glfwSwapInterval(0);
 
   
-  style_t lines_style = { .stroke_size  = 4.0f,
+  style_t lines_style = { .stroke_size  = 2.0f,
                              .stroke_color = nvgRGBAf(0.0f, 0.0f, 0.0f, 1.0f) };
-  style_t database_style = { .stroke_size  = 1.0f,
+  style_t database_style = { .stroke_size  = 3.0f,
                              .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
                              .fill_color   = nvgRGBA(78, 121, 161, 255) };
-  style_t result_style = { .stroke_size  = 1.0f,
+  style_t result_style = { .stroke_size  = 3.0f,
                            .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
                            .fill_color   = nvgRGBA(242, 142, 43, 255) };
-  style_t query_style = { .stroke_size  = 2.0f,
+  style_t query_style = { .stroke_size  = 3.0f,
                           .stroke_color = nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f),
                           .fill_color   = nvgRGBA(225, 87, 89, 255) };
   style_t domain_style = { .stroke_size  = 6.0f,
-                          .stroke_color  = nvgRGBAf(0.8f, 0.8f, 0.8f, 1.0f),
-                          .fill_color    = nvgRGBAf(1.0f, 1.0f, 1.0f, 0.0f) };
+                           .stroke_color  = nvgRGBAf(0.8f, 0.8f, 0.8f, 1.0f),
+                           .fill_color    = nvgRGBAf(1.0f, 1.0f, 1.0f, 0.0f) };
 
   msh_vec2_t domain_origin = msh_vec2( window_size/2, window_size/2 );
   float domain_radius = window_size/2 - 20;
@@ -155,16 +155,11 @@ int main( int argc, char** argv )
                                                             domain_radius, 
                                                             n_pts );
 
-  msh_vec3_t* pts_3d = malloc( n_pts * sizeof(msh_vec3_t) );
-  for( int i = 0; i < n_pts; ++i )
-  {
-    pts_3d[i] = msh_vec3(pts[i].x, pts[i].y, 0.0f);
-  }
 
   msh_hash_grid_t search_grid = {0};
   float search_radius = 64.0f;
-  msh_hash_grid_init( &search_grid, (float*)&pts_3d[0], n_pts, search_radius );
-  int max_n_neigh = 100;
+  msh_hash_grid_init_2d( &search_grid, (float*)&pts[0], n_pts, search_radius );
+  int max_n_neigh = 10;
   msh_hash_grid_search_desc_t search_opts = { .radius = search_radius,
                                               .max_n_neigh = max_n_neigh,
                                               .n_query_pts = 1,
@@ -186,8 +181,9 @@ int main( int argc, char** argv )
 
     msh_vec2_t query_pt = msh_vec2( domain_origin.x + query_r * cos( query_theta ), 
                                     domain_origin.y + query_r * sin( query_theta ) );
-    search_opts.query_pts = (float*)&(msh_vec3_t){ .x = query_pt.x, .y = query_pt.y, .z = 0.0f };
-    int n_results = msh_hash_grid_radius_search_mt( &search_grid, &search_opts );
+    search_opts.query_pts = (float*)&query_pt;
+    int n_results = msh_hash_grid_radius_search( &search_grid, &search_opts );
+    // int n_results = msh_hash_grid_knn_search( &search_grid, &search_opts );
     msh_vec2_t *result_pts = malloc( n_results * sizeof(msh_vec2_t) );
     for( int i = 0; i < n_results; ++i )
     {
@@ -200,9 +196,7 @@ int main( int argc, char** argv )
       connector_lines[2*i] = query_pt;
       connector_lines[2*i+1] = result_pts[i];
       lines_intensity[i] = 1.0 - sqrt(search_opts.distances_sq[i]) / search_radius;
-      // printf("%f %f\n", sqrt(search_opts.distances_sq[i]), lines_intensity[i] );
     }
-    // exit(-1);/
     uint64_t lt2 = msh_time_now();
     float logic_time = msh_time_diff(MSHT_MILLISECONDS, lt2, lt1);
     // Calculate pixel ration for hi-dpi devices.
