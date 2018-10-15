@@ -68,4 +68,5 @@ gcc -std=c99 -I<path_to_msh_libraries> msh_hash_grid_example.c -o msh_hash_grid_
 ~~~
 
 This program showcases the usage of msh_hash_grid.h. It creates a window in which we visualize neighbors of a moving 2D point. Requires OpenGL, GLFW, GLEW and nanovg to build.
+
 ![hashgrid_vis](images/hashgrid_vis.png)
