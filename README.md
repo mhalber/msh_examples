@@ -8,6 +8,7 @@ Examples so far:
 
 - [Ply Loading](#ply-loading)
 - [PDF Sampling](#pdf-sampling)
+- [Nearest neigbor queries](#nearest-neighbor-searches)
 
 ## Ply Loading
 
@@ -45,9 +46,26 @@ msh_std.h implements three ways to do this:
 
 1) Linear search - requires no setup, other than normalizing the distribution. Generating the random sample from a distribution can take O(n) time. Use only for very small distributions.
 
-2) Inverted CDF - Works by computing an approximation of inverted cumulative distribution function. Setup takes O(m) time, where m is discretization of probabilites. Sampling takes O(1) time. Issue with this method is the discretization of probabilities to integers. Depending on your distribution m might need to be very large. To see this method fail, decrease A_INVCDF_N_BINS and inspect the printed values
+2) Inverted CDF - Works by computing an approximation of inverted cumulative distribution function. Setup takes O(m) time, where m is discretization of probabilities. Sampling takes O(1) time. Issue with this method is the discretization of probabilities to integers. Depending on your distribution m might need to be very large. To see this method fail, decrease A_INVCDF_N_BINS and inspect the printed values
 
 3) Alias method - preferable way to do sampling. Requires O(n) setup, generation takes O(1) time (although we need to compute two random numbers instead of one). Implementation of Vose's algorithm, after [description by Keith Schwartz](http://www.keithschwarz.com/darts-dice-coins/).
 
 This program will perform simulation of loaded dice and sampling from a mixture of 
 gaussian distribution, using all three methods. Timings will also be performed.
+
+## Nearest neighbor searches
+
+**Library:** msh_hash_grid.h
+
+**Compilation:**
+~~~
+gcc -std=c99 -I<path_to_msh_libraries> msh_hash_grid_example.c -o msh_hash_grid_example -lglfw3 -lopengl32 -lglew32 -lnanovg
+~~~
+  
+**Usage:**
+~~~
+./msh_hash_grid_example
+~~~
+
+This program showcases the usage of msh_hash_grid.h. It creates a window in which we visualize neighbors of a moving 2D point. Requires OpenGL, GLFW, GLEW and nanovg to build.
+<div style="text-align:center"><img src ="images/hashgrid_vis.png" style="max-width:256px" /></div>

@@ -1,5 +1,14 @@
-// msh_hash_grid_example.c
-// compile: gcc -I../dev msh_hash_grid_example.c -o ../bin/msh_hash_grid_example.exe -lglfw3 -lopengl32 -lglew32 -lnanovg
+/*
+  Author: Maciej Halber
+  Date : Oct 15, 2018
+  License: CC0
+ 
+  Compilation: gcc -std=c99 -I<path_to_msh_libraries> msh_hash_grid_example.c -o msh_hash_grid_example -lglfw3 -lopengl32 -lglew32 -lnanovg
+  Usage:       msh_hash_grid_example
+  Description: This program showcases the usage of msh_hash_grid.h. It creates a window in which
+               we visualize neighbors of a moving 2D point. Requires OpenGL, GLFW, GLEW and nanovg
+               to build.
+*/
 
 #define MSH_STD_INCLUDE_LIBC_HEADERS
 #define MSH_STD_IMPLEMENTATION
@@ -8,7 +17,7 @@
 #define GLFW_INCLUDE_GLEXT
 #define NANOVG_GL3_IMPLEMENTATION
 
-#include <GL/glew.h> // TODO: replace with flextgl or smth
+#include <GL/glew.h>    // TODO: replace with flextgl or smth
 #include <GLFW/glfw3.h> // TODO: replace with sokol_app.h
 
 #include "msh/msh_std.h"
