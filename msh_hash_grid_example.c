@@ -112,9 +112,7 @@ int main( int argc, char** argv )
     return -1;
   }
 
-  // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-  // glfwWindowHint(GLFW_SAMPLES, 4);
-  float window_size = 512;
+  float window_size = 256;
   window = glfwCreateWindow( window_size, window_size, "Poisson Disk Sampling", NULL, NULL);
 
   if (!window) {
@@ -129,6 +127,7 @@ int main( int argc, char** argv )
     printf("Failed to init GLEW.\n");
     return -1;
   }
+
   // GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
   glGetError();
 
@@ -159,7 +158,7 @@ int main( int argc, char** argv )
 
   msh_vec2_t domain_origin = msh_vec2( window_size/2, window_size/2 );
   float domain_radius = window_size/2 - 20;
-  int n_pts = 1000;
+  int n_pts = 250;
   msh_vec2_t* pts = generate_random_points_within_a_circle( domain_origin, 
                                                             domain_radius, 
                                                             n_pts );
