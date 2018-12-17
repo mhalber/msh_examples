@@ -6,9 +6,27 @@ This repository contains examples of usage of various [msh libraries](https://gi
 
 Examples so far:
 
+- [Spatial Hash Grid](#spatial-hash-grid)
 - [Ply Loading](#ply-loading)
 - [PDF Sampling](#pdf-sampling)
-- [Nearest neigbor queries](#nearest-neighbor-searches)
+
+
+## Spatial Hash Grid
+![hashgrid_vis](images/hashgrid_vis.png)
+
+**Library:** msh_hash_grid.h
+
+**Compilation:**
+~~~
+gcc -std=c99 -I<path_to_msh_libraries> msh_hash_grid_example.c -o msh_hash_grid_example -lglfw3 -lopengl32 -lglew32 -lnanovg
+~~~
+  
+**Usage:**
+~~~
+./msh_hash_grid_example
+~~~
+
+This program showcases the usage of msh_hash_grid.h. It creates a window in which we visualize neighbors of a moving 2D point. Requires OpenGL, GLFW, GLEW and nanovg to build.
 
 ## Ply Loading
 
@@ -16,12 +34,12 @@ Examples so far:
 
 **Compilation:**
 ~~~
-gcc -std=c99 -I<path_to_msh_libraries> msh_pdf_sampling_example.c -o msh_pdf_sampling_example
+gcc -std=c99 -I<path_to_msh_libraries> msh_ply_example.c -o msh_ply_example
 ~~~
   
 **Usage:**
 ~~~
-./msh_pdf_sampling_example <path_to_ply_file>
+./msh_ply_example <path_to_ply_file>
 ~~~
 
 Simple program showcasing msh_ply.h for writing ply file of a colored cube mesh. Program will also read the file back and print the contents of a ply header into stdout.
@@ -53,19 +71,3 @@ msh_std.h implements three ways to do this:
 This program will perform simulation of loaded dice and sampling from a mixture of 
 gaussian distribution, using all three methods. Timings will also be performed.
 
-## Nearest neighbor searches
-![hashgrid_vis](images/hashgrid_vis.png)
-
-**Library:** msh_hash_grid.h
-
-**Compilation:**
-~~~
-gcc -std=c99 -I<path_to_msh_libraries> msh_hash_grid_example.c -o msh_hash_grid_example -lglfw3 -lopengl32 -lglew32 -lnanovg
-~~~
-  
-**Usage:**
-~~~
-./msh_hash_grid_example
-~~~
-
-This program showcases the usage of msh_hash_grid.h. It creates a window in which we visualize neighbors of a moving 2D point. Requires OpenGL, GLFW, GLEW and nanovg to build.
